@@ -62,7 +62,10 @@
     </main>
 
     <script>
-      var ably = new Ably.Realtime('5lWbiw.fprUhQ:XzWGuEJWE7lCBEJS');
+      var ably = new Ably.Realtime({
+        authUrl:
+          'https://realtime-jamstack-reactions.netlify.app/.netlify/functions/ably-auth-url',
+      });
       var reactionsChannel = ably.channels.get('reactions');
 
       function handleReaction(event) {
