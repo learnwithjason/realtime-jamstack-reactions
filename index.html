@@ -32,6 +32,10 @@
         margin: 0.5rem;
       }
     </style>
+    <script
+      type="text/javascript"
+      src="//cdn.ably.io/lib/ably.min-1.js"
+    ></script>
   </head>
   <body>
     <main>
@@ -42,16 +46,52 @@
         />
       </div>
       <div class="reactions">
-        <button>
+        <button data-type="heart">
           <span aria-label="purple heart">💜</span>
+          <span class="current-count">0</span>
         </button>
-        <button>
+        <button data-type="heart-eyes">
           <span aria-label="face with heart eyes">😍</span>
+          <span class="current-count">0</span>
         </button>
-        <button>
+        <button data-type="dog">
           <span aria-label="dog face">🐶</span>
+          <span class="current-count">0</span>
         </button>
       </div>
     </main>
+
+    <script>
+      var ably = new Ably.Realtime('5lWbiw.fprUhQ:XzWGuEJWE7lCBEJS');
+      var reactionsChannel = ably.channels.get('reactions');
+
+      function handleReaction(event) {
+        const button = event.target.closest('button');
+
+        console.log(button);
+        console.log(button.dataset.type);
+
+        reactionsChannel.publish('new_reaction', {
+          type: button.dataset.type,
+        });
+      }
+
+      document.querySelectorAll('button').forEach((button) => {
+        button.addEventListener('click', handleReaction);
+      });
+
+      // subscribe to the channel
+      reactionsChannel.subscribe('new_reaction', (event) => {
+        const button = document.querySelector(
+          `button[data-type="${event.data.type}"]`,
+        );
+        const currentCount = parseInt(
+          button.querySelector('.current-count').innerHTML,
+          10,
+        );
+
+        button.querySelector('.current-count').innerHTML = currentCount + 1;
+      });
+    </script>
   </body>
 </html>
